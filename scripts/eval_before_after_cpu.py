@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""可选脚本：7B CPU 推理极慢，仅作参考，非必选验收项。"""
+"""可选脚本：本地 CPU 上 7B 推理不具可行性，仅作参考，非必选验收项。"""
 
 from __future__ import annotations
 
@@ -63,7 +63,7 @@ def run_eval(phase: str) -> None:
 
 def main():
     parser = argparse.ArgumentParser(
-        description="可选：对比微调前后 5 条固定问题（CPU 7B 推理极慢）"
+        description="可选：对比微调前后 5 条固定问题（本地 CPU 7B 推理不具可行性）"
     )
     parser.add_argument(
         "--phase",

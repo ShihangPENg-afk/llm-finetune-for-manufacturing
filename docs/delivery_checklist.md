@@ -148,7 +148,7 @@ bash scripts/train_qwen2_7b_lora_cpu.sh
 
 - [x] 说明实验环境为 Intel MacBook Pro CPU，无 GPU/MPS
 - [x] 说明 `max_samples: 50`、1 epoch 仅为流程验证
-- [x] 说明 CPU 训练与推理极慢，不建议本地完整训练
+- [x] 说明本地 CPU 硬件约束下不建议完整训练与推理评测
 - [x] 说明 LoRA 模型尚未接入 rag-agent
 - [x] 说明后续应迁移至 GPU 服务器完成正式训练
 
@@ -160,7 +160,7 @@ bash scripts/train_qwen2_7b_lora_cpu.sh
 
 | 项目 | 状态 | 说明 |
 |------|------|------|
-| before/after 效果对比 | 未完成 | `eval_before_after_cpu.py` 已就绪；16GB CPU 下 7B 推理极慢且易 OOM |
+| before/after 效果对比 | 未完成 | `eval_before_after_cpu.py` 已就绪；16GB CPU 下 7B 推理不具可行性且易 OOM |
 | 全量样本正式训练 | 未完成 | 当前仅训练 50/132 条、1 epoch，不足以获得可用领域模型 |
 | GPU 环境迁移 | 未完成 | 需在 GPU 服务器上使用全量数据与更多 epoch 重训 |
 | LoRA 接入 rag-agent | 未完成 | rag-agent 仍使用 DashScope 在线 API，未加载本仓库 adapter 权重 |

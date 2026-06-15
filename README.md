@@ -105,7 +105,9 @@ instruction 模板示例：
 | 配置文件 | `configs/qwen2_7b_lora_cpu.yaml` |
 | 训练输出 | `outputs/qwen2_7b_lora_cpu/`（已被 `.gitignore` 忽略） |
 
-**定位说明：** 本地 CPU 训练仅用于**流程验证**，不追求训练效果。50 条样本、1 个 epoch 的配置足以确认数据管线与训练脚本可正常工作；正式训练应在 GPU 服务器上完成。
+**定位说明：** 本地 CPU 环境仅用于**流程可复现验证**，而非追求模型效果。50 条样本、1 个 epoch 的配置足以确认数据管线与训练脚本可正常工作；正式训练应在 GPU 服务器上完成。
+
+> **Clone 后数据处理：** 仓库不提交 `data/processed/*.json` 与 `data/raw_pdfs/*.pdf`。首次运行前须将 PDF 放入 `data/raw_pdfs/`，再执行 `extract_chunks.py` 与 `build_alpaca_dataset.py` 生成 `chunks.json`、`alpaca_train.json` 与 `dataset_info.json`。
 
 ---
 
@@ -138,7 +140,7 @@ python scripts/sample_check.py
 # 4. 启动 CPU LoRA 训练
 bash scripts/train_qwen2_7b_lora_cpu.sh
 
-# 5. before/after 评测（可选，CPU 推理极慢）
+# 5. before/after 评测（可选；本地 CPU 上 7B 推理不具可行性）
 python scripts/eval_before_after_cpu.py --phase before
 python scripts/eval_before_after_cpu.py --phase after
 ```
@@ -156,12 +158,20 @@ python scripts/eval_before_after_cpu.py --phase after
 
 ## 当前限制
 
-- **CPU 上 7B 模型训练与推理极慢**：首次需下载基座权重（约 1h+）；50 step 训练约 4h；7B 全量 CPU 推理在 16GB 内存下易 OOM 或每题需 30–60+ 分钟。
-- **不建议在本地完成完整训练**：当前 `max_samples: 50`、1 epoch 仅为流程验证，不足以获得可用模型。
+- **本地硬件约束**：实验在 Intel MacBook Pro CPU（16GB、无 GPU）上完成。7B 基座首次下载约 1h+；50 step 训练约 4h；全量 CPU 推理易 OOM 或单题耗时过长，**不适合**本地完整训练与评测。
+- **流程验证定位**：当前 `max_samples: 50`、1 epoch 仅为 workflow 验证，不足以获得可用领域模型。
 - **LoRA 模型尚未接入 rag-agent**：微调权重保存在本仓库 `outputs/`，rag-agent 仍使用 DashScope 在线 API，两者尚未打通。
-- **后续计划**：将数据管线与训练配置迁移到 GPU 服务器，使用全量 132 条样本与更多 epoch 完成正式训练，再评估是否接入 rag-agent 生成节点。
+- **无生产鉴权、未云部署**：训练与权重均为本地实验产物。
 
 详细实验记录见 [docs/experiment_record.md](docs/experiment_record.md)。
+
+---
+
+## 后续计划
+
+- 将数据管线与训练配置迁移至 GPU 服务器，使用全量 132 条样本与更多 epoch 完成正式训练
+- 在 GPU 环境完成 before/after 效果评测
+- 评估是否将 LoRA adapter 接入 rag-agent 生成节点（**当前尚未接入**）
 
 ---
 
