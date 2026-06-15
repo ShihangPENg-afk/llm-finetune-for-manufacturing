@@ -1,8 +1,24 @@
 .venv/
 __pycache__/
 .DS_Store
+**/.DS_Store
 outputs/
 screenshots/
+*.log
+.cache/
+.pytest_cache/
+.idea/
+.vscode/
+
+# 数据集与原始 PDF（本地生成，不提交）
 data/processed/*.json
 data/raw_pdfs/*.pdf
 !data/raw_pdfs/.gitkeep
+
+# LoRA / 模型权重（仅保留在本地 outputs/）
+*.safetensors
+*.bin
+*.pt
+*.pth
+*.ckpt
+*.onnx

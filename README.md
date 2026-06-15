@@ -2,7 +2,7 @@
 
 独立的 **LoRA 微调实验仓库**，用于验证从 PDF 技术手册到 Alpaca 格式数据集，再到 [LLaMA-Factory](https://github.com/hiyouga/LLaMA-Factory) LoRA 微调的完整流程。
 
-本仓库的目标不是交付生产级模型，而是在本地 CPU 环境下跑通「数据处理 → 数据集注册 → LoRA 训练 → 权重保存」链路，为后续在 GPU 服务器上进行正式训练提供可复现基线。
+本仓库的目标不是提供生产级模型，而是在本地 CPU 环境下验证「数据处理 → 数据集注册 → LoRA 训练 → 权重保存」完整工作流，为后续在 GPU 服务器上进行正式训练提供可复现基线。
 
 ---
 
@@ -10,7 +10,7 @@
 
 | 项目 | 路径 | 职责 | 当前状态 |
 |------|------|------|----------|
-| **rag-agent** | `../rag-agent` | Agentic RAG 问答服务：PDF 上传、FAISS 检索、LangGraph Agent、RAGAS 评估 | 主项目，生产可用演示 |
+| **rag-agent** | `../rag-agent` | Agentic RAG 问答服务：PDF 上传、FAISS 检索、LangGraph Agent、RAGAS 评估 | 主应用仓库（工程化 POC） |
 | **llm-finetune-manual** | 本仓库 | PDF → Alpaca 数据集 → Qwen2-7B LoRA 微调 | 独立实验仓库 |
 
 **两者关系：**

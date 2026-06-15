@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""可选脚本：7B CPU 推理极慢，仅作参考，不作为 Day3 强制验收项。"""
+"""可选脚本：7B CPU 推理极慢，仅作参考，非必选验收项。"""
 
 from __future__ import annotations
 

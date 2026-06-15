@@ -3,7 +3,7 @@ stage: sft
 do_train: true
 finetuning_type: lora
 
-# 指向正确的 Day 2 处理数据目录
+# 处理后 Alpaca 数据集目录（dataset_info.json 与 alpaca_train.json）
 dataset_dir: data/processed
 dataset: manual_alpaca
 template: qwen
