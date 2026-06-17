@@ -14,6 +14,7 @@ INSTRUCTION_TEMPLATES = [
 
 MIN_TEXT_LEN = 160
 MAX_SAMPLES = 150
+DATASET_NAME = "manual_alpaca"
 
 
 NOISE_PATTERNS = [
@@ -104,6 +105,24 @@ def build_samples(chunks: list[dict], max_samples: int = MAX_SAMPLES) -> list[di
     return samples
 
 
+def write_dataset_info(out_path: Path) -> None:
+    dataset_info = {
+        DATASET_NAME: {
+            "file_name": "alpaca_train.json",
+            "formatting": "alpaca",
+            "columns": {
+                "prompt": "instruction",
+                "query": "input",
+                "response": "output",
+            },
+        }
+    }
+    out_path.write_text(
+        json.dumps(dataset_info, ensure_ascii=False, indent=2) + "\n",
+        encoding="utf-8",
+    )
+
+
 def main():
     chunk_path = Path("data/processed/chunks.json")
     out_path = Path("data/processed/alpaca_train.json")
@@ -114,15 +133,19 @@ def main():
     chunks = json.loads(chunk_path.read_text(encoding="utf-8"))
     samples = build_samples(chunks)
 
+    dataset_info_path = out_path.parent / "dataset_info.json"
+
     out_path.write_text(
         json.dumps(samples, ensure_ascii=False, indent=2),
         encoding="utf-8",
     )
+    write_dataset_info(dataset_info_path)
 
     print(f"✅ 原始 chunk 数量: {len(chunks)}")
     print(f"✅ 共生成 {len(samples)} 条 Alpaca 样本")
     print(f"✅ instruction 模板数: {len(INSTRUCTION_TEMPLATES)}")
     print(f"✅ 输出文件: {out_path}")
+    print(f"✅ 数据集注册: {dataset_info_path}")
 
 
 if __name__ == "__main__":

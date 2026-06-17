@@ -37,23 +37,26 @@
 ## 数据处理流程
 
 ```
+PDF 语料（data/demo_corpus/*.txt）
+    │
+    ▼  scripts/generate_demo_pdfs.py   （或自备 PDF 到 data/raw_pdfs/）
 PDF（data/raw_pdfs/）
     │
     ▼  scripts/extract_chunks.py
 chunks.json（文本切块）
     │
     ▼  scripts/build_alpaca_dataset.py
-alpaca_train.json（Alpaca 三元组）
+alpaca_train.json（Alpaca 三元组）+ dataset_info.json
     │
-    ▼  dataset_info.json
+    ▼
 LLaMA-Factory 数据集注册（manual_alpaca）
 ```
 
 | 步骤 | 脚本 | 输入 | 输出 | 说明 |
 |------|------|------|------|------|
+| 生成演示 PDF | `scripts/generate_demo_pdfs.py` | `data/demo_corpus/manual*.txt` | `data/raw_pdfs/manual*.pdf` | 可跳过并自备 PDF |
 | PDF 切块 | `scripts/extract_chunks.py` | `data/raw_pdfs/*.pdf` | `data/processed/chunks.json` | PyMuPDF 抽取文本，按段落合并为 ~800 字符 chunk |
-| 构造 Alpaca 数据 | `scripts/build_alpaca_dataset.py` | `chunks.json` | `data/processed/alpaca_train.json` | 清洗噪音、去重、长度过滤，4 种 instruction 模板轮换 |
-| 数据集注册 | — | `alpaca_train.json` | `data/processed/dataset_info.json` | 向 LLaMA-Factory 注册 `manual_alpaca` 数据集 |
+| 构造 Alpaca 数据 | `scripts/build_alpaca_dataset.py` | `chunks.json` | `alpaca_train.json`, `dataset_info.json` | 清洗噪音、去重、长度过滤，4 种 instruction 模板轮换 |
 
 ---
 
@@ -61,7 +64,7 @@ LLaMA-Factory 数据集注册（manual_alpaca）
 
 | 属性 | 值 |
 |------|-----|
-| 样本数 | **132**（本地实验：5 份 PDF） |
+| 样本数 | **133**（演示语料 pipeline：`generate_demo_pdfs.py` → 5 份 PDF） |
 | instruction 模板数 | **4**（轮换分配，避免单一指令过拟合） |
 | 数据格式 | Alpaca（`instruction` / `input` / `output`） |
 | 数据集名称 | `manual_alpaca` |
@@ -108,7 +111,7 @@ instruction 模板示例：
 
 **定位说明：** 本地 CPU 环境仅用于**流程可复现验证**，而非追求模型效果。50 条样本、1 个 epoch 的配置足以确认数据管线与训练脚本可正常工作；正式训练应在 GPU 服务器上完成。
 
-> **Clone 后数据处理：** 仓库不提交 `data/processed/*.json` 与 `data/raw_pdfs/*.pdf`。首次运行前须将 PDF 放入 `data/raw_pdfs/`，再执行 `extract_chunks.py` 与 `build_alpaca_dataset.py` 生成 `chunks.json`、`alpaca_train.json` 与 `dataset_info.json`。文档中的 132 条样本数来自本地 5 份合成/演示 PDF（`manual1.pdf` ~ `manual5.pdf`）的实验结果。
+> **Clone 后数据处理：** 仓库不提交 `data/processed/*.json` 与 `data/raw_pdfs/*.pdf`。首次运行请先执行 `scripts/generate_demo_pdfs.py` 从 `data/demo_corpus/` 生成 5 份演示 PDF，再运行 `extract_chunks.py` 与 `build_alpaca_dataset.py` 生成 `chunks.json`、`alpaca_train.json` 与 `dataset_info.json`（后者由 `build_alpaca_dataset.py` 自动写入）。也可替换为自己的 PDF 放入 `data/raw_pdfs/`。文档中的 **133** 条样本数来自演示语料 pipeline 的可复现结果（2026-06-09 原始 PDF 实验为 132 条，因 PDF 版式差异可能差 1）。
 
 ---
 
@@ -127,19 +130,22 @@ cd llm-finetune-for-manufacturing
 # 0. 安装依赖
 pip install -r requirements.txt
 
-# 1. PDF 切块
+# 1. 生成演示 PDF（也可跳过并自备 PDF 到 data/raw_pdfs/）
+python scripts/generate_demo_pdfs.py
+
+# 2. PDF 切块
 python scripts/extract_chunks.py data/raw_pdfs/
 
-# 2. 构造 Alpaca 数据集
+# 3. 构造 Alpaca 数据集（同时写入 dataset_info.json）
 python scripts/build_alpaca_dataset.py
 
-# 3. 抽样检查数据质量
+# 4. 抽样检查数据质量
 python scripts/sample_check.py
 
-# 4. 启动 CPU LoRA 训练
+# 5. 启动 CPU LoRA 训练（需从 Hugging Face 下载 Qwen2-7B-Instruct，体积大、耗时长）
 bash scripts/train_qwen2_7b_lora_cpu.sh
 
-# 5. before/after 评测（可选；本地 CPU 上 7B 推理不具可行性）
+# 6. before/after 评测（可选；本地 CPU 上 7B 推理不具可行性）
 python scripts/eval_before_after_cpu.py --phase before
 python scripts/eval_before_after_cpu.py --phase after
 ```
@@ -185,14 +191,16 @@ python scripts/eval_before_after_cpu.py --phase after
 
 ```
 data/
-  raw_pdfs/              # 原始 PDF（*.pdf 已被 .gitignore 忽略，本地放置）
+  demo_corpus/           # 演示语料（manual1.txt ~ manual5.txt，已提交）
+  raw_pdfs/              # 原始 PDF（*.pdf 已被 .gitignore 忽略，由脚本生成或本地放置）
   processed/
     chunks.json          # 文本切块（本地生成，.gitignore）
     alpaca_train.json    # Alpaca 微调数据（本地生成，.gitignore）
-    dataset_info.json    # LLaMA-Factory 数据集配置（本地生成，.gitignore）
+    dataset_info.json    # LLaMA-Factory 数据集配置（build_alpaca_dataset.py 生成，.gitignore）
 configs/
   qwen2_7b_lora_cpu.yaml # CPU LoRA 训练配置
 scripts/
+  generate_demo_pdfs.py  # 从 demo_corpus 生成演示 PDF
   extract_chunks.py      # PDF 切块
   build_alpaca_dataset.py
   sample_check.py        # 数据抽样检查

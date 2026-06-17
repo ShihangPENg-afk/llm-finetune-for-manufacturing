@@ -34,13 +34,15 @@
 
 ## 3. 数据集信息
 
-数据来源：`data/raw_pdfs/` 下的 5 份 PDF 技术手册。
+数据来源：`data/demo_corpus/` 语料经 `generate_demo_pdfs.py` 生成 PDF，或直接使用 `data/raw_pdfs/` 下的原始 PDF。
+
+> **样本数说明：** 2026-06-09 原始 PDF 实验为 **132** 条；当前仓库演示语料 pipeline 复现为 **133** 条（PDF 版式差异可能导致 ±1）。
 
 | 指标 | 数值 |
 |------|------|
 | PDF 数量 | **5**（`manual1.pdf` ~ `manual5.pdf`） |
-| chunk 数 | **132**（`data/processed/chunks.json`） |
-| Alpaca 样本数 | **132**（`data/processed/alpaca_train.json`） |
+| chunk 数 | **132**（原始 PDF，`data/processed/chunks.json`） |
+| Alpaca 样本数 | **132**（原始 PDF） / **133**（demo corpus pipeline） |
 | instruction 模板数 | **4**（轮换分配，避免单一指令过拟合） |
 | 数据集名称 | `manual_alpaca` |
 | 字段格式 | Alpaca：`instruction` / `input` / `output` |
@@ -49,8 +51,7 @@
 数据处理脚本：
 
 - PDF 切块：`scripts/extract_chunks.py`
-- Alpaca 构造：`scripts/build_alpaca_dataset.py`
-- 数据集配置：`data/processed/dataset_info.json`
+- Alpaca 构造：`scripts/build_alpaca_dataset.py`（同时生成 `dataset_info.json`）
 
 ---
 
@@ -92,7 +93,7 @@
 | 记录位置 | 说明 |
 |----------|------|
 | `outputs/qwen2_7b_lora_cpu/trainer_log.jsonl` | 逐步 loss 日志 |
-| `outputs/qwen2_7b_lora_cpu/training_loss.png` | loss 曲线图 |
+| `outputs/qwen2_7b_lora_cpu/training_loss.png` | loss 曲线图（本地生成，未提交 Git） |
 | `outputs/qwen2_7b_lora_cpu/train_results.json` | 汇总指标 |
 
 关键 loss 数值：
@@ -142,5 +143,6 @@
 相关文档：
 
 - 仓库说明：[README.md](../README.md)
+- 验收清单：[delivery_checklist.md](delivery_checklist.md)
 - 训练配置：[configs/qwen2_7b_lora_cpu.yaml](../configs/qwen2_7b_lora_cpu.yaml)
 - rag-agentic-system 项目：[README.md](https://github.com/ShihangPENg-afk/rag-agentic-system/blob/main/README.md)
